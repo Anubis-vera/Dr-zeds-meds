@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#172a2d"><title>Dr. Zed's Meds • Sanctuary Vending Machine</title>
+<style>
+:root{color-scheme:dark;--cyan:#8aeeff;--red:#bd3e40;--paper:#efe1c6;--steel:#454d57;--shadow:#111b23}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#0e161a;color:#f2f2ed;font-family:Arial,'Trebuchet MS',sans-serif}button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:3px solid #95efff;outline-offset:4px}img{max-width:100%;display:block}
+.page{width:100%;max-width:940px;margin:0 auto;padding:12px 12px 42px;background:radial-gradient(ellipse at top,#456b69 0,#15272b 49%,#091317 100%)}
+.broadcast{border:3px solid #637582;border-radius:10px;overflow:hidden;background:#091014;box-shadow:0 7px 30px #0009;margin:0 auto 10px;max-width:850px}
+.broadcast video{width:100%;aspect-ratio:16/9;object-fit:contain;display:block;background:#000}.broadcast-heading,.broadcast-foot{font-size:10px;letter-spacing:2px;text-align:center;padding:9px 5px;color:#c7e2df;background:linear-gradient(#32464b,#192c32);font-weight:900}
+.wall{position:relative;border:3px solid #2a454a;border-radius:5px;padding:16px 15px 28px;overflow:hidden;background-color:#94aea8;background-image:linear-gradient(#062b2b75,#061314b8),repeating-linear-gradient(90deg,transparent 0 76px,#456461 76px 79px),repeating-linear-gradient(0deg,transparent 0 76px,#456461 76px 79px);box-shadow:inset 0 0 45px #0009}
+.wall:after{content:"";position:absolute;bottom:0;left:0;width:100%;height:26px;background:repeating-linear-gradient(90deg,#1b272e 0 70px,#823d37 70px 140px);pointer-events:none}
+.scene-label{font-size:11px;letter-spacing:2px;font-weight:900;color:#d5e2da;text-shadow:1px 2px #000;margin:4px 0 16px 4px}
+.machine-wrap{position:relative;width:min(100%,536px);margin:0 auto;filter:drop-shadow(9px 16px 16px #000a)}
+.machine-image{width:100%;height:auto;display:block;border-radius:8px;user-select:none;-webkit-user-drag:none}
+.hotspot{position:absolute;z-index:4;border:0;background:transparent;color:white;padding:0;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+.hotspot:before{content:"";position:absolute;inset:0;border-radius:inherit;transition:box-shadow .2s,background .2s}
+.hotspot:hover:before,.hotspot:focus-visible:before{box-shadow:0 0 0 3px #92ebff,0 0 19px #47d7ff; background:#4cdbff17}
+.hotspot span{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;letter-spacing:1px;font-weight:900;text-shadow:0 1px 4px #000;pointer-events:none;background:#112b31d9;padding:3px 6px;border-radius:4px}
+.scanner{left:74.4%;top:22.3%;width:19.7%;height:11.6%;border-radius:50%}.scanner:after{content:"";width:39%;aspect-ratio:1;border-radius:50%;box-shadow:0 0 13px 4px #46bfffab;animation:breath 2.6s ease-in-out infinite;pointer-events:none}
+.keypad{left:76.2%;top:38.4%;width:18.4%;height:10.5%;border-radius:8px}.keypad span{bottom:-14px}
+@keyframes breath{50%{box-shadow:0 0 29px 9px #69e5ffdc}}
+.folder{position:absolute;z-index:5;top:-14px;left:0;width:133px;min-height:63px;border:2px solid #866138;border-radius:7px;padding:12px 9px 7px;background:linear-gradient(150deg,#f0dbaa,#bb985d);color:#40291c;box-shadow:3px 6px 10px #0009;transform:rotate(-9deg);text-align:left}
+.folder:before{content:"";position:absolute;left:9px;top:-10px;width:65px;height:12px;background:#dfc391;border:2px solid #866138;border-bottom:0;border-radius:5px 5px 0 0}
+.folder strong{display:block;font-size:12px;line-height:1.05}.folder small{display:block;color:#ad2729;font-weight:900;letter-spacing:1.1px;font-size:9px;margin-bottom:3px}
+/* Independent floating promo — never part of the regular inventory menu. */
+.iotd-launch{position:absolute;z-index:6;top:13%;right:-92px;width:136px;min-height:149px;padding:9px 7px 10px;border:5px ridge #8b8fa9;border-radius:11px;background:linear-gradient(145deg,#8f47c6,#44216b 65%,#2d1646);box-shadow:0 0 0 3px #252638,0 12px 22px #000a,0 0 22px #ac58fa6e;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;color:#faf2ff;touch-action:manipulation}
+.iotd-launch .iotd-brow{font-size:10px;letter-spacing:1px;font-weight:1000;text-shadow:1px 2px #000}
+.iotd-launch img{height:72px;width:72px;object-fit:contain;filter:drop-shadow(0 3px 2px #150d21);animation:headTilt 2.2s ease-in-out infinite alternate}
+.iotd-launch .iotd-timer{font-size:13px;font-weight:900;padding:3px 13px;border-radius:18px;border:2px solid #ef9a91;background:#a72c41}
+.iotd-launch .iotd-cta{font-size:9px;letter-spacing:1px;font-weight:900;color:#cbbaff}
+@keyframes headTilt{from{transform:rotate(-12deg)}to{transform:rotate(12deg)}}@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.footer,.machine-note{text-align:center;letter-spacing:1.5px;color:#bcc9c9;font-size:10px;line-height:1.6;margin-top:17px;font-weight:700}.machine-note{margin:7px auto 0;color:#a3dce0}
+.sound-toggle{display:block;margin:12px auto 0;padding:10px 18px;border:2px solid #3d8391;border-radius:6px;color:#d5faff;background:linear-gradient(#274957,#101f2a);font-weight:900;font-size:11px;letter-spacing:1px}
+/* Shared holographic overlay */
+.overlay{position:fixed;z-index:50;inset:0;display:none;align-items:center;justify-content:center;padding:10px;background:radial-gradient(circle at 50% 50%,#71cae523,#08151dee 83%);backdrop-filter:blur(5px)}
+.overlay.is-open{display:flex}.modal{width:min(100%,780px);max-height:min(94dvh,950px);overflow:hidden;border:5px ridge #9398a0;border-radius:14px;background:linear-gradient(125deg,#616974,#252c36 20%,#343e48 65%,#17222c);box-shadow:0 0 0 3px #131d26,0 18px 45px #000e,0 0 28px #51b9e54d;display:flex;flex-direction:column;position:relative}
+.modal:before{content:"";position:absolute;inset:6px;border:1px solid #c9d6dd4c;border-radius:8px;pointer-events:none}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 10px 15px;gap:10px;border-bottom:2px solid #8695a1;background:linear-gradient(#515963,#2a303a);flex-shrink:0}
+.modal-title{font:1000 24px Impact,'Arial Narrow',sans-serif;letter-spacing:2px;text-shadow:2px 3px #0b1118}.modal-head small{display:block;font-size:10px;color:#b3dae5;letter-spacing:1.8px;margin-top:3px}
+.close{background:linear-gradient(#ef5e60,#9d292b);color:#fff;border:3px outset #f0989a;width:35px;height:35px;line-height:1;font-size:25px;font-weight:1000;border-radius:4px;flex-shrink:0}
+.modal-scroll{overflow-y:auto;min-height:0;overscroll-behavior:contain;padding:13px 13px 18px}
+.purchase-item-details{display:flex;align-items:center;gap:12px;border:3px solid #9bb8c5;background:linear-gradient(120deg,#0d2635,#214b5d);padding:10px;box-shadow:inset 0 0 15px #020e19;margin-bottom:10px;border-radius:7px}
+.selected-art{flex:0 0 90px;background:linear-gradient(145deg,#486f88,#222c4c);border:3px solid #84cdec;border-radius:6px;height:75px;display:grid;place-items:center}.selected-art svg{width:80px;height:60px}
+.selected-copy{min-width:0;flex:1}.selected-copy h3{margin:1px 0 5px;font-family:Impact,Arial,sans-serif;font-size:20px;letter-spacing:1px}.selected-copy p{font-size:12px;line-height:1.35;margin:4px 0;color:#c9dbe4}.selected-meta{font-size:11px;font-weight:900;color:#ffe0a1}
+.item-list-heading{text-align:center;font-family:Impact,Arial,sans-serif;font-size:17px;letter-spacing:1px;margin:6px 0 8px;background:#29323e;border:2px solid #8194a4;border-radius:5px;padding:8px}
+.item-list{display:flex;flex-direction:column;gap:7px;max-width:430px;margin:0 auto}
+.item-button{width:100%;display:flex;gap:10px;align-items:center;border:4px ridge #84a9c0;background:linear-gradient(#567c9b,#243d5f);padding:6px 9px;border-radius:8px;color:#ecf8ff;text-align:left;box-shadow:inset 0 0 9px #0e2340}
+.item-button.selected{border-color:#ffe08c;background:linear-gradient(#7f8e8e,#51658d);box-shadow:0 0 10px #f3cd62a8}
+.item-icon{flex:0 0 72px;height:45px;display:grid;place-items:center;background:#131e42;border:2px solid #8eb8d2;border-radius:4px}.item-icon svg{height:42px;max-width:68px}
+.item-copy{min-width:0;flex:1}.item-copy b{display:block;font-size:12px}.item-copy small{display:block;font-size:10px;color:#c3d6e3;margin-top:3px}.rarity{font-size:10px;color:#f5d59b}
+.buy{display:block;width:100%;margin:12px auto 0;padding:13px 15px;border:3px outset #b3dcef;border-radius:7px;background:linear-gradient(#51b8e2,#1a5485);font:900 17px Impact,Arial,sans-serif;letter-spacing:2px;color:white;text-shadow:1px 2px #0a223c}
+.buy:active{transform:translateY(2px)}.statusline{margin-top:11px;background:#141c27;border:1px solid #677f93;color:#a6eaff;padding:9px;min-height:43px;font-size:12px;line-height:1.4}
+/* Dedicated item of the day window */
+.iotd-modal{width:min(100%,430px);border-color:#c5c2d1;background:linear-gradient(120deg,#57566a,#282b42 20%,#352c55 85%)}
+.iotd-card{margin:0 auto;max-width:360px;background:linear-gradient(165deg,#492b77,#160e2a);padding:11px;border:4px ridge #acd0f5;border-radius:9px;box-shadow:inset 0 0 18px #000a}
+.iotd-art{min-height:130px;background:radial-gradient(ellipse,#a74aef,#43226d 65%,#25113c);border:4px ridge #9bd0ff;display:grid;place-items:center;border-radius:4px}
+.iotd-art svg{width:175px;max-width:90%;height:117px;filter:drop-shadow(0 7px 7px #0008)}
+.iotd-name{font:900 23px Impact,Arial,sans-serif;letter-spacing:1px;margin:9px 0 4px}.iotd-description{font-size:12px;line-height:1.5;color:#e3d8f2;margin:6px 0}.iotd-meta{font-weight:900;font-size:12px;color:#f9d888}
+.iotd-clockbar{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-top:11px}
+.iotd-clock{background:linear-gradient(#e14753,#9a2434);padding:8px 13px;border-radius:25px;border:3px ridge #f69d9e;font-size:19px;font-weight:1000;white-space:nowrap}
+.iotd-minihead{width:72px;height:72px;object-fit:contain;animation:headTilt 2.2s ease-in-out infinite alternate}
+.iotd-urgency{font-size:12px;letter-spacing:1px;text-align:center;margin-top:7px;color:#faf0ec;font-weight:900}
+/* dossier */
+.file-modal{width:min(100%,610px);background:#d8c2a0;color:#362719;border:5px ridge #826745}.file-modal .modal-head{background:linear-gradient(#c6a77d,#8d724f)}.file-modal .modal-title{font-size:17px;color:#3b2417;text-shadow:none}
+.file-body{background:repeating-linear-gradient(180deg,#eee2ca 0 27px,#e5d7ba 28px);padding:18px}.file-stamp{border:4px double #b32c31;color:#a92c31;display:table;padding:7px 16px;margin:7px auto 15px;font-weight:1000;transform:rotate(-6deg);letter-spacing:2px}
+.file-photo{width:210px;max-width:85%;margin:0 auto 12px;border:6px solid #c4a983;box-shadow:0 3px 12px #0005}.file-line{font-size:12px;padding:8px 0;border-bottom:1px dashed #998568}.file-line b{color:#822a2e}.file-section{background:#f9efdaa8;border-left:4px solid #a23d3a;margin-top:12px;padding:10px;font-size:12px;line-height:1.55}.file-section b{display:block;margin-bottom:5px;color:#7a2927}
+/* Dispense effects: always visible in purchase result and a briefly lit lower slot on the machine */
+.dispense-toast{position:fixed;z-index:100;left:50%;bottom:15px;transform:translate(-50%,140%);width:min(92%,480px);padding:12px;border:3px ridge #a8d6dc;border-radius:9px;background:#092d36ed;color:#e4fbff;box-shadow:0 0 20px #38d8f083;opacity:0;pointer-events:none;transition:transform .3s,opacity .3s;text-align:center;font-weight:900;font-size:13px;line-height:1.4}.dispense-toast.show{transform:translate(-50%,0);opacity:1}.dispense-toast small{display:block;font-weight:500;margin-top:6px}
+@media(max-width:760px){.page{padding:6px 6px 30px}.wall{padding:12px 6px 27px}.scene-label{margin-bottom:78px;font-size:9px}.machine-wrap{width:min(100%,480px)}.iotd-launch{top:-77px;right:2%;width:111px;min-height:88px;padding:5px 4px;border-width:3px}.iotd-launch img{width:40px;height:40px}.iotd-launch .iotd-brow{font-size:8px}.iotd-launch .iotd-cta{font-size:8px}.iotd-launch .iotd-timer{font-size:11px;padding:2px 8px}.folder{width:112px;top:-15px;left:2%;min-height:53px;padding:9px 7px 5px}.folder strong{font-size:10px}.folder small{font-size:7px}.hotspot span{font-size:7px;padding:3px 4px}.modal{max-height:93dvh}.modal-scroll{padding:8px}.modal-title{font-size:21px}.purchase-item-details{gap:8px;padding:7px}.selected-art{flex-basis:62px;height:63px}.selected-art svg{width:58px}.selected-copy h3{font-size:17px}.selected-copy p{font-size:11px}.item-icon{flex-basis:58px}.item-copy b{font-size:11px}.buy{font-size:16px}.scene-label{max-width:55%}}
+@media(prefers-reduced-motion:reduce){.iotd-launch,.iotd-launch img,.iotd-minihead,.scanner:after{animation:none}.dispense-toast{transition:none}}
+
+/* Restored approved Zed illustrated advertisement */
+.adframe{padding:7px;min-width:0;border:2px solid #253944;border-radius:7px;background:linear-gradient(110deg,#8699aa,#d4dae0 18%,#7d90a0);box-shadow:inset 0 0 0 2px #3e6075}.ad{position:relative;min-height:490px;display:flex;align-items:center;flex-direction:column;padding:18px 8px 12px;text-align:center;overflow:hidden;border:3px solid #40657c;border-radius:5px;background:repeating-conic-gradient(from 0deg at 50% 62%,#ffffff25 0 12deg,transparent 12deg 24deg),linear-gradient(#f1e6df,#eccbce 62%,#b83b3d 62%,#a83436)}.ad:before{content:'';position:absolute;inset:5px;border:2px solid #fffbf6a1;border-radius:5px;pointer-events:none}.ad .dr{position:relative;font:900 15px Georgia,serif;letter-spacing:3px;color:#a83b38}.ad .zed{position:relative;margin:4px 0 8px;font:900 clamp(27px,5.5vw,43px) Georgia,serif;color:#b33137;text-shadow:1px 2px #fff9ed}.medseal{position:relative;width:105px;height:105px;border:6px solid #fff7ea;border-radius:50%;background:#c84141;box-shadow:0 0 0 3px #a33534;margin:7px auto 10px}.medseal:before,.medseal:after{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff5ec;border-radius:4px}.medseal:before{width:69px;height:25px}.medseal:after{width:25px;height:69px}.ad .meds{position:relative;font:900 clamp(28px,5vw,42px) Georgia,serif;color:#a33134;text-shadow:1px 2px #fff8f0;letter-spacing:2px}.ad .inc{position:relative;color:#822d2a;font:900 11px Arial,sans-serif;letter-spacing:4px}.mascot{position:relative;flex:none;width:128px;height:140px;margin:18px auto 2px;transform:rotate(-7deg);filter:drop-shadow(5px 5px 2px #54252788)}.cap{position:absolute;top:0;left:37px;width:53px;height:18px;background:#96deca;border:3px solid #286058;border-radius:11px}.bottle{position:absolute;top:18px;left:18px;width:94px;height:115px;background:linear-gradient(140deg,#a8e3cf,#49998e);border:5px solid #245c51;border-radius:20px 20px 29px 29px;box-shadow:inset 0 0 0 4px #ffffff25}.face{position:absolute;top:27px;left:14px;width:55px;height:55px;background:#303138;border:5px solid #cb9e50;border-radius:50%;box-shadow:0 0 0 3px #f5e2bd}.face:before{content:'';position:absolute;top:8px;left:5px;width:31px;height:11px;border-top:5px solid #ecdcc7;border-radius:50%;transform:rotate(-10deg)}.face:after{content:'';position:absolute;bottom:7px;left:6px;width:29px;height:13px;border:2px solid #8f979e;border-radius:5px;background:#e5e5df}.hand{position:absolute;top:55px;left:0;width:31px;height:31px;background:#fff1e4;border:4px solid #80322f;border-radius:50%;font:900 17px/24px Arial;color:#b53d3b}.hand.r{left:auto;right:0}.ad-tag{position:relative;margin:auto 0 3px;color:#ffdfdc;text-shadow:1px 2px #6e2528;font:900 11px/1.6 Arial;letter-spacing:1px}
+
+
+/* V7 — restored V5 hand-built machine, with interactive hardware ADDED */
+.machine-wrap{width:min(100%,545px);margin:0 auto;position:relative;filter:none}
+.restore-machine{position:relative;border:5px solid #272d35;border-radius:15px;padding:83px 12px 13px;background:linear-gradient(110deg,#a0a8b0 0%,#525f6d 7%,#414952 89%,#8b95a0);box-shadow:inset 0 0 0 3px #abb8c3,inset 0 0 0 10px #343f4a,9px 17px 23px #000a}
+.restore-machine:before{content:'ZED’S MEDS, INC.  •  SANCTUARY';position:absolute;top:23px;left:20px;max-width:48%;font:900 13px Impact,Arial,sans-serif;letter-spacing:1.5px;text-shadow:2px 2px #1a232c}
+.restore-machine:after{content:'';position:absolute;inset:8px;border:1px solid #cad5de33;border-radius:9px;pointer-events:none}
+.restore-machine .adframe{position:relative;padding:8px;box-shadow:inset 0 0 0 3px #3e6075,0 0 0 2px #273943}
+.restore-machine .ad{min-height:575px;height:auto;padding:22px 103px 15px 8px}
+.restore-machine .ad .dr{font-size:19px}
+.restore-machine .ad .zed{font-size:clamp(30px,7vw,49px);white-space:nowrap}
+.restore-machine .ad .medseal{width:122px;height:122px;margin:11px auto 15px}
+.restore-machine .ad .medseal:before{width:82px;height:28px}.restore-machine .ad .medseal:after{width:28px;height:82px}
+.restore-machine .ad .meds{font-size:clamp(34px,7vw,49px)}
+.restore-machine .ad .mascot{width:128px;height:145px;margin:25px auto 12px}
+.restore-machine .ad .ad-tag{font-size:12px;margin:auto 0 8px}
+.restore-controls{position:absolute;z-index:4;right:5px;top:142px;width:99px;padding:12px 6px 12px;border:3px solid #26313b;border-radius:9px 0 0 9px;background:linear-gradient(110deg,#596570,#2d343e 35%,#404c58 90%);box-shadow:inset 0 0 0 2px #93a0ac,0 5px 16px #0009}
+.restore-canister{height:84px;width:34px;margin:0 auto 13px;border:3px solid #222831;border-radius:5px;background:linear-gradient(90deg,#19232c,#394552,#161f27);position:relative}
+.restore-canister:before{content:'';position:absolute;top:7px;left:9px;width:11px;height:38px;background:linear-gradient(#a7e8ae,#318c62);border-radius:4px;box-shadow:0 0 9px #56b9a5}
+.restore-scanner{display:block;position:relative;width:77px;height:77px;border:7px solid #6e7d8a;border-radius:50%;background:radial-gradient(circle,#d4ffff 0 9%,#39c9ec 12% 23%,#123953 26% 53%,#04151e 57% 75%,#314b59 79%);box-shadow:0 0 0 2px #a5b7bc,0 0 20px #54d6f9a1;margin:0 auto 15px;cursor:pointer;animation:breath 2.6s ease-in-out infinite}
+.restore-scanner:hover,.restore-scanner:focus-visible{box-shadow:0 0 0 4px #b4f4fc,0 0 26px #54d6f9}
+.restore-keypad{display:block;width:74px;min-height:95px;margin:0 auto;border:5px ridge #8192a1;border-radius:5px;background:linear-gradient(#20313a,#111d27);box-shadow:inset 0 0 0 3px #101820,0 3px 7px #000a;padding:6px 5px;cursor:pointer}
+.restore-keypad:before{content:' ';display:block;height:13px;border:1px solid #6e9ea7;border-radius:3px;background:linear-gradient(#83fffc,#22617a);box-shadow:0 0 8px #46dbef55;margin-bottom:7px}
+.restore-keypad-keys{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.restore-keypad-keys i{height:8px;background:linear-gradient(#aebbc6,#637785);border-radius:1px;border:1px solid #324456}
+.restore-rail-label{font-size:9px;text-align:center;letter-spacing:1px;color:#b7ecf6;margin-top:11px;text-shadow:1px 1px #152a30}
+.restore-tray{height:121px;border:4px double #9aa6af;border-radius:7px;margin:17px 2px 3px;padding:14px;background:linear-gradient(#64717d,#2c343c);box-shadow:inset 0 0 0 3px #25303a}
+.restore-tray-slit{height:61px;border:4px solid #26323a;border-radius:6px;background:linear-gradient(#101a21,#273744 30%,#10161c);box-shadow:inset 0 8px 18px #000c;position:relative;overflow:hidden}
+.restore-tray-slit:before{content:'';position:absolute;top:0;left:0;width:100%;height:18px;background:linear-gradient(#85929a,#4e5a65);border-bottom:3px solid #202e38}
+.restore-tray-slit:after{content:'✚ MEDICAL SUPPLY RECEPTACLE ✚';position:absolute;bottom:9px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:1.2px;color:#aec4cc}
+.restore-machine.is-dispensing .restore-tray-slit{box-shadow:inset 0 0 25px #64f4fd99,0 0 15px #59c6ff77}
+.restore-machine .folder{right:13px;left:auto;top:9px;transform:rotate(9deg);z-index:7}
+.restore-machine .folder:hover{transform:rotate(3deg) translateY(-3px)}
+.restore-machine .adframe,.restore-machine .ad,.restore-controls{pointer-events:auto}
+.restore-controls .restore-scanner,.restore-controls .restore-keypad{z-index:6;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.machine-wrap .iotd-launch{right:auto;left:-91px;top:120px}
+@media(max-width:760px){
+.machine-wrap{width:min(100%,520px)}
+.restore-machine{padding:78px 7px 10px}
+.restore-machine:before{font-size:10px;top:23px;left:12px;max-width:47%}
+.restore-machine .ad{min-height:490px;padding:17px 79px 10px 5px}
+.restore-machine .ad .zed{font-size:clamp(24px,7vw,38px)}
+.restore-machine .ad .medseal{height:92px;width:92px;margin:9px auto 12px}
+.restore-machine .ad .medseal:before{height:22px;width:63px}.restore-machine .ad .medseal:after{height:63px;width:22px}
+.restore-machine .ad .meds{font-size:clamp(26px,7vw,40px)}
+.restore-machine .ad .mascot{margin:20px auto 10px;transform:rotate(-7deg) scale(.87);transform-origin:top center;height:124px}
+.restore-machine .ad .ad-tag{font-size:10px}
+.restore-controls{right:3px;top:154px;width:78px;padding:8px 3px}
+.restore-canister{height:65px;width:27px;margin-bottom:11px}.restore-canister:before{left:6px;height:28px}
+.restore-scanner{width:62px;height:62px;border-width:6px;margin-bottom:15px}
+.restore-keypad{width:62px;min-height:83px;padding:6px 4px}.restore-keypad-keys{gap:3px}.restore-keypad-keys i{height:7px}
+.restore-rail-label{font-size:7px;letter-spacing:.5px}
+.restore-machine .folder{right:8px;left:auto;top:8px}
+.machine-wrap .iotd-launch{top:-85px;left:2%;right:auto}
+.scene-label{margin-bottom:86px}
+}
+@media(max-width:380px){
+.restore-machine .ad{padding-right:74px;min-height:462px}
+.restore-machine .ad .zed{font-size:26px}
+.restore-machine .ad .mascot{transform:rotate(-7deg) scale(.75);height:110px}
+.restore-controls{width:72px}
+.restore-scanner{width:55px;height:55px}
+.restore-keypad{width:54px}
+.restore-machine .ad .ad-tag{font-size:9px}
+}
+
+</style></head><body>
+<div class="page" id="zedRoot">
+<section class="broadcast"><div class="broadcast-heading">✚ ZED'S MEDS — SANCTUARY BROADCAST ✚</div><video src="https://file.garden/asLXvYfOscgWTC_M/Zedsintro.mp4" muted playsinline autoplay loop controls preload="metadata" aria-label="Dr. Zed introduction video"></video><div class="broadcast-foot">AUTHORIZED MEDICAL ADVERTISEMENT • 16:9</div></section>
+<div class="wall"><div class="scene-label">ZED'S MEDS, INC. • SANCTUARY</div>
+<div class="machine-wrap">
+<div class="restore-machine" id="zedPhysicalMachine">
+<button type="button" class="folder" id="openFile"><small>CONFIDENTIAL</small><strong>DR. ZED BLANCO</strong><small>RESTRICTED FILE</small></button>
+<div class="adframe"><div class="ad"><span class="dr">DR.</span><div class="zed">ZED'S</div><div class="medseal"></div><div class="meds">MEDS</div><span class="inc">INC.</span><div class="mascot"><div class="cap"></div><div class="bottle"><div class="face"></div></div><div class="hand">+</div><div class="hand r">+</div></div><div class="ad-tag">SHIELDS • HEALING<br>PEACE OF MIND</div></div></div>
+<div class="restore-controls" aria-label="Medical vending machine controls"><div class="restore-canister" aria-hidden="true"></div>
+<button type="button" class="restore-scanner" id="openScanner" aria-label="Scan to open regular medical supply shop"></button>
+<button type="button" class="restore-keypad" id="openKeypad" aria-label="Use keypad to open regular medical supply shop"><span class="restore-keypad-keys" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></button>
+<div class="restore-rail-label">SCAN OR TAP<br>TO SHOP</div></div>
+<div class="restore-tray"><div class="restore-tray-slit"></div></div>
+</div>
+<button type="button" class="iotd-launch" id="openIotd" aria-label="Open separate Item of the Day promotion"><span class="iotd-brow">ITEM OF THE DAY</span><img src="https://file.garden/asLXvYfOscgWTC_M/file_0000000012b481f5b4f11df37173a204.png" alt="Dr. Zed head icon" onerror="this.style.visibility='hidden'"><span class="iotd-timer" id="miniCountdown">10:00</span><span class="iotd-cta">TAP FOR SPECIAL</span></button>
+</div><div class="machine-note">✚ TAP THE GLOWING SCANNER OR KEYPAD TO SHOP ✚</div>
+<button type="button" class="sound-toggle" id="soundToggle" aria-pressed="true">🔊 ZED'S VOICE: ON</button>
+<div class="footer">NO REFUNDS • NO GUARANTEES • NO COMPLAINTS<br>THIS IS A ROLEPLAY DISPLAY — NO REAL PURCHASES</div></div>
+</div>
+<!-- Regular menu only; no item of the day inside this overlay -->
+<div class="overlay" id="shopOverlay" aria-hidden="true"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="shopTitle"><header class="modal-head"><div><div class="modal-title" id="shopTitle">$ PURCHASE</div><small>ZED'S MEDS • MEDICAL SUPPLIES</small></div><button type="button" class="close" id="shopClose" aria-label="Close regular shop">×</button></header><div class="modal-scroll">
+<div class="purchase-item-details"><div class="selected-art" id="selectedArt"></div><div class="selected-copy"><h3 id="selectedName">FIRST AID KIT</h3><p id="selectedDescription"></p><div class="selected-meta" id="selectedMeta"></div></div></div>
+<div class="item-list-heading">✚ ALL • MEDICAL SUPPLIES</div><div class="item-list" id="itemList"></div>
+<button type="button" class="buy" id="buyStandard">✚ DISPENSE SELECTED ✚</button><div class="statusline" id="shopQuote" aria-live="polite">ZED'S MEDS • YOUR HEALTH IS OUR BUSINESS</div>
+</div></section></div>
+<!-- Dedicated purple Item of the Day modal (independent of shop) -->
+<div class="overlay" id="iotdOverlay" aria-hidden="true"><section class="modal iotd-modal" role="dialog" aria-modal="true" aria-labelledby="featuredTitle"><header class="modal-head"><div><div class="modal-title" id="featuredTitle">ITEM OF THE DAY</div><small>ONE SPECIAL • TEN-MINUTE STOCK</small></div><button type="button" class="close" id="iotdClose" aria-label="Close Item of the Day">×</button></header><div class="modal-scroll"><div class="iotd-card">
+<div class="iotd-art" id="iotdArt"></div><div class="iotd-name" id="iotdName"></div><div class="iotd-meta" id="iotdMeta"></div><p class="iotd-description" id="iotdDescription"></p>
+<div class="iotd-clockbar"><div class="iotd-clock" id="iotdCountdown">10:00</div><img src="https://file.garden/asLXvYfOscgWTC_M/file_0000000012b481f5b4f11df37173a204.png" class="iotd-minihead" alt="Dr. Zed mascot"></div><div class="iotd-urgency">TIME IS RUNNING OUT!</div>
+<button type="button" class="buy" id="buyFeatured">★ DISPENSE FEATURED ★</button><div class="statusline" id="featuredQuote" aria-live="polite">Next rotation in 10:00</div>
+</div></div></section></div>
+<div class="overlay" id="fileOverlay" aria-hidden="true"><section class="modal file-modal" role="dialog" aria-modal="true" aria-labelledby="fileTitle"><header class="modal-head"><div><div class="modal-title" id="fileTitle">✚ CONFIDENTIAL PERSONNEL FILE</div><small>DR. ZED BLANCO</small></div><button type="button" class="close" id="fileClose" aria-label="Close file">×</button></header><div class="modal-scroll file-body"><div class="file-stamp">LICENSE REVOKED</div><img class="file-photo" src="https://i.ibb.co/dn4BR0C/file-000000007d8481f5b5f016913b5b32af.png" alt="Dr. Zed, surgical mask on, leaning over an operating table"><div class="file-line"><b>NAME:</b> Dr. Zed Blanco</div><div class="file-line"><b>LOCATION:</b> Sanctuary, Pandora</div><div class="file-line"><b>OCCUPATION:</b> Unlicensed physician / medical vendor</div><div class="file-line"><b>AFFILIATION:</b> Zed's Meds / Crimson Raiders</div><div class="file-section"><b>01 // PERSONNEL OVERVIEW</b>Dr. Zed is Pandora's notoriously unlicensed medical practitioner. He's resourceful, crude, opportunistic and bizarrely capable of keeping people alive.</div><div class="file-section"><b>02 // BEDSIDE MANNER</b>Medical competence competes with questionable hygiene, improvised surgery, dangerous curiosity, and an enthusiasm for collecting spare organs. Discretion not included.</div><div class="file-section"><b>03 // HISTORY</b>Originally operating from Fyrestone, Zed relocated to Sanctuary after pressure from Hyperion and persuasion from Roland's Crimson Raiders.</div><div class="file-section"><b>04 // STAFF NOTES</b>Known to Marcus, Lilith, Moxxi, Scooter and Tannis. Brother to Dr. Ned. Patient survival generally encouraged.</div><div class="file-section"><b>REQUIRED DISCLAIMER</b>If ya ain't dead, he'll keep ya that way. Probably.</div></div></section></div>
+<div class="dispense-toast" id="dispenseToast" role="status" aria-live="polite"></div>
+<script>
+(()=>{'use strict';
+const VOICE_LINES=[{"text":"Zed out!","url":"https://file.garden/asLXvYfOscgWTC_M/zed_02_zed_out.mp3"},{"text":"Catch ya later.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_03_catch_you_later.mp3"},{"text":"Come on back anytime.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_04_come_on_back_anytime.mp3"},{"text":"Try not to die!","url":"https://file.garden/asLXvYfOscgWTC_M/zed_05_try_not_to_die.mp3"},{"text":"Next time you’re bleedin’ to death, just think: Doctor Zed.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_06_next_time_youre_bleeding.mp3"},{"text":"Be careful out there.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_07_be_careful_out_there.mp3"},{"text":"You’re an organ donor, right?","url":"https://file.garden/asLXvYfOscgWTC_M/zed_08_organ_donor_right.mp3"},{"text":"I’ll patch ya up whenever you need it.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_09_ill_patch_you_up.mp3"},{"text":"Stay alive out there.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_10_stay_alive_out_there.mp3"},{"text":"Hope it helps.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_11_hope_it_helps.mp3"},{"text":"That oughta keep your insides inside.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_12_keep_your_insides_inside.mp3"},{"text":"Look alive out there!","url":"https://file.garden/asLXvYfOscgWTC_M/zed_13_look_alive_out_there.mp3"},{"text":"Good luck!","url":"https://file.garden/asLXvYfOscgWTC_M/zed_14_good_luck.mp3"},{"text":"That’ll buy you a couple of seconds if nothin’ else.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_15_buy_you_a_couple_seconds.mp3"},{"text":"You’ll be shakin’ off bullets like dandruff.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_16_shaking_off_bullets.mp3"},{"text":"Make good use of that.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_17_make_good_use_of_that.mp3"},{"text":"Good choice... probably.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_18_good_choice_probably.mp3"},{"text":"Be careful with that.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_19_be_careful_with_that.mp3"},{"text":"Soooooold!","url":"https://file.garden/asLXvYfOscgWTC_M/zed_20_sold.mp3"},{"text":"Get your health and shields right here!","url":"https://file.garden/asLXvYfOscgWTC_M/zed_21_health_and_shields.mp3"},{"text":"Almost dead? I can fix that.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_22_almost_dead.mp3"},{"text":"Welcome to Doctor Zed’s portable clinic. What can I get for ya?","url":"https://file.garden/asLXvYfOscgWTC_M/zed_23_welcome_to_portable_clinic.mp3"},{"text":"Please insert any donated organs into the receptacle below.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_24_donated_organs_receptacle.mp3"},{"text":"I’m legally obligated to tell ya I ain’t a real doctor.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_25_not_a_real_doctor.mp3"},{"text":"Who needs a medical license when you got style?","url":"https://file.garden/asLXvYfOscgWTC_M/zed_26_medical_license_and_style.mp3"},{"text":"If ya ain’t dead, I’ll keep ya that way.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_27_if_you_aint_dead.mp3"},{"text":"Hope you’ve had your shots.","url":"https://file.garden/asLXvYfOscgWTC_M/zed_28_hope_youve_had_your_shots.mp3"},{"text":"Buy from me if you wanna live!","url":"https://file.garden/asLXvYfOscgWTC_M/zed_29_buy_from_me.mp3"},{"text":"If you got the money, I’ll save your gol-durn life!","url":"https://file.garden/asLXvYfOscgWTC_M/zed_30_if_you_got_the_money.mp3"},{"text":"E-tech is friggin’ dope!","url":"https://file.garden/asLXvYfOscgWTC_M/VOSQ_MedicalMystery_13_echoX_Zed_1-etech_dope%20(1).mp3"}];
+const ICONS={
+ case:`<svg viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path d="M48 19V11Q48 5 54 5H106Q112 5 112 11V19" fill="none" stroke="#1c232b" stroke-width="8"/><rect x="15" y="22" width="130" height="76" rx="10" fill="#4c5660" stroke="#1b252a" stroke-width="9"/><path d="M22 49H138" stroke="#a5b1b7" stroke-width="5"/><rect x="68" y="41" width="24" height="40" rx="3" fill="#efebe2"/><rect x="60" y="49" width="40" height="24" rx="3" fill="#efebe2"/><circle cx="29" cy="85" r="4" fill="#dca9a4"/><circle cx="131" cy="85" r="4" fill="#dca9a4"/></svg>`,
+ shield:`<svg viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path d="M80 8L133 27V58Q126 85 80 105Q34 85 27 58V27Z" fill="#317f96" stroke="#111f29" stroke-width="9"/><path d="M80 19L118 33V57Q111 78 80 94Q49 78 42 57V33Z" fill="#7de9ff" opacity=".75"/><path d="M80 29V82M55 55H105" stroke="#fff4e4" stroke-width="9" stroke-linecap="round"/></svg>`,
+ injector:`<svg viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><g transform="translate(80 55) rotate(-24) translate(-80 -55)"><rect x="38" y="33" width="88" height="45" rx="9" fill="#57746a" stroke="#1c252b" stroke-width="8"/><rect x="48" y="41" width="55" height="29" rx="5" fill="#98e17a"/><path d="M30 43H10M30 68H10M126 55H151" stroke="#d7e0e7" stroke-width="9" stroke-linecap="round"/><path d="M151 55H158" stroke="#8ba1af" stroke-width="3"/></g></svg>`,
+ organ:`<svg viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path d="M80 96C42 78 16 59 25 34C35 7 65 17 80 33C95 17 125 7 135 34C144 59 118 78 80 96Z" fill="#c14651" stroke="#54202a" stroke-width="9"/><path d="M80 36V78M59 57H100" stroke="#ffd4cb" stroke-width="7" stroke-linecap="round"/></svg>`,
+ mystery:`<svg viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path d="M60 7H100V30L118 81Q123 98 105 100H55Q37 98 42 81L60 30Z" fill="#28a69e" stroke="#1d3338" stroke-width="9"/><path d="M51 70H109L116 89Q117 94 104 94H56Q44 94 45 89Z" fill="#73e9e0"/><text x="80" y="75" text-anchor="middle" font-family="Arial" font-weight="900" font-size="50" fill="#183b3f">?</text></svg>`
+};
+const catalog=[
+{id:'aid',name:'FIRST AID KIT',price:125,rarity:'COMMON',description:'A portable patch-up kit. Fixing your mistakes since whenever.',icon:'case',symbol:'✚',family:'heal'},
+{id:'shield',name:'SHIELD MOD',price:350,rarity:'RARE',description:'Absorb some bullets before they start rearranging your organs.',icon:'shield',symbol:'S',family:'shield'},
+{id:'quick',name:'INSTA-HEALTH',price:210,rarity:'UNCOMMON',description:'Emergency treatment. Quick relief, questionable sterilization.',icon:'injector',symbol:'H',family:'heal'},
+{id:'donor',name:'ORGAN RECEPTACLE',price:0,rarity:'QUESTIONABLE',description:'Please insert donated organs into the receptacle below.',icon:'organ',symbol:'O',family:'organ'},
+{id:'mystery',name:'MYSTERY MEDS',price:999,rarity:'EPIC',description:'The label fell off. Zed assures us it probably does something.',icon:'mystery',symbol:'?',family:'mystery'}
+];
+const featuredPool=[
+{id:'surge',name:'SURGE SHIELD',price:825,rarity:'RARE',description:'Keeping your insides inside at a discount.',icon:'shield',symbol:'S',family:'shield'},
+{id:'field',name:'FIELD RESCUE KIT',price:420,rarity:'UNCOMMON',description:'For Vault Hunters who forgot to avoid bullets.',icon:'case',symbol:'✚',family:'heal'},
+{id:'injector',name:'PANACEA INJECTOR',price:630,rarity:'EPIC',description:'Strange chemistry and an even stranger guarantee.',icon:'injector',symbol:'H',family:'heal'},
+{id:'organ',name:'PRE-OWNED ORGAN',price:777,rarity:'RARE',description:'Previous owner unavailable for comment.',icon:'organ',symbol:'O',family:'organ'},
+{id:'etech',name:'E-TECH PHASE SHIELD',price:1450,rarity:'E-TECH',description:'Experimental Eridian-infused shielding. Zed says it is friggin’ dope. Warranty void on Pandora.',icon:'shield',symbol:'E',family:'shield'},
+{id:'serum',name:'WILDCARD SERUM',price:1199,rarity:'EPIC',description:'Results may vary. Results will definitely happen.',icon:'mystery',symbol:'?',family:'mystery'}
+];
+const $=id=>document.getElementById(id);
+let selectedIndex=0,activeOverlay=null,priorFocus=null,muted=false,voicePlayer=null,lastVoice=-1,toastTimer;
+const MS=600000,STORE='zed-meds-v6-featured';
+const slotNow=()=>Math.floor(Date.now()/MS);
+let slot=slotNow(),offset=0;
+try{const saved=JSON.parse(localStorage.getItem(STORE)||'null');if(saved && saved.slot===slot && Number.isInteger(saved.offset))offset=((saved.offset%featuredPool.length)+featuredPool.length)%featuredPool.length}catch{}
+function save(){try{localStorage.setItem(STORE,JSON.stringify({slot,offset}))}catch{}}
+function currentFeatured(){return featuredPool[(slot+offset)%featuredPool.length]}
+function dollar(x){return x===0?'FREE':'$'+x}
+function renderItems(){ $('itemList').innerHTML=catalog.map((i,n)=>'<button type="button" class="item-button'+(n===selectedIndex?' selected':'')+'" data-index="'+n+'" aria-pressed="'+(n===selectedIndex)+'"><span class="item-icon">'+ICONS[i.icon]+'</span><span class="item-copy"><b>'+i.name+'</b><small>'+i.rarity+' • '+dollar(i.price)+'</small></span><span class="rarity">›</span></button>').join('');$('itemList').querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{selectedIndex=Number(button.dataset.index);renderItems();renderSelected();beep()}))}
+function renderSelected(){const item=catalog[selectedIndex];$('selectedArt').innerHTML=ICONS[item.icon];$('selectedName').textContent=item.name;$('selectedDescription').textContent=item.description;$('selectedMeta').textContent=dollar(item.price)+' • '+item.rarity}
+function renderFeatured(){const i=currentFeatured();$('iotdArt').innerHTML=ICONS[i.icon];$('iotdName').textContent=i.name;$('iotdMeta').textContent=i.rarity+' • '+dollar(i.price);$('iotdDescription').textContent=i.description}
+function tick(){const n=slotNow();if(n!==slot){slot=n;offset=0;save();renderFeatured()}const ms=MS-Date.now()%MS,s=Math.ceil(ms/1000),t=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');$('miniCountdown').textContent=t;$('iotdCountdown').textContent=t}
+function beep(){if(muted)return;try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const ctx=beep.ctx||(beep.ctx=new C());if(ctx.state==='suspended')ctx.resume();const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(540,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(850,ctx.currentTime+.12);g.gain.setValueAtTime(.027,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.16);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.16)}catch{}}
+const pools={fileOpen:[4,28],depart:[0,1,2,3,5,8],greet:[19,20,21,23,25],heal:[7,9,10,11,20],shield:[13,14,15,16],organ:[6,22],mystery:[17,18,24,25],generic:[12,16,17,18,27,28]};
+function chooseVoice(family){const options=pools[family]||pools.generic;let n=options[Math.floor(Math.random()*options.length)];if(n===lastVoice&&options.length>1)n=options[(options.indexOf(n)+1)%options.length];lastVoice=n;return VOICE_LINES[n]}
+function speak(line){if(muted||!line?.url)return;try{if(voicePlayer){voicePlayer.pause();voicePlayer.currentTime=0}voicePlayer=new Audio(line.url);voicePlayer.volume=.9;voicePlayer.play().catch(()=>{const target=activeOverlay==='shopOverlay'?'shopQuote':activeOverlay==='iotdOverlay'?'featuredQuote':null;if(target && activeOverlay && !muted)console.warn('Dr. Zed audio could not play:',line.url)})}catch{}}
+function open(which){if(activeOverlay)close();activeOverlay=which;priorFocus=document.activeElement;$(which).classList.add('is-open');$(which).setAttribute('aria-hidden','false');document.body.style.overflow='hidden';const closeButton=$(which).querySelector('.close');closeButton?.focus()}
+function close(){if(!activeOverlay)return;$(activeOverlay).classList.remove('is-open');$(activeOverlay).setAttribute('aria-hidden','true');activeOverlay=null;document.body.style.overflow='';if(priorFocus?.focus)priorFocus.focus()}
+function openShop(){open('shopOverlay');beep();const q=chooseVoice('greet');$('shopQuote').textContent='DR. ZED: “'+q.text+'”';speak(q)}
+function openFeature(){renderFeatured();tick();$('featuredQuote').textContent='SELECT A FEATURED ITEM TO DISPENSE';open('iotdOverlay');beep();if(currentFeatured().id==='etech'){const line=VOICE_LINES[VOICE_LINES.length-1];$('featuredQuote').textContent='DR. ZED: “'+line.text+'”';speak(line)}}
+function toast(item,line){$('dispenseToast').innerHTML='<span>✚ '+item.name.replace(/&/g,'&amp;').replace(/</g,'&lt;')+' DISPENSED ✚</span><small>“'+line.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'”</small>';$('dispenseToast').classList.remove('show');void $('dispenseToast').offsetWidth;$('dispenseToast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('dispenseToast').classList.remove('show'),4700)}
+function purchase(feature=false){const machine=$('zedPhysicalMachine');machine.classList.remove('is-dispensing');void machine.offsetWidth;machine.classList.add('is-dispensing');setTimeout(()=>machine.classList.remove('is-dispensing'),1100);const item=feature?currentFeatured():catalog[selectedIndex];const line=feature&&item.id==='etech'?VOICE_LINES[VOICE_LINES.length-1]:chooseVoice(item.family);beep();speak(line);toast(item,line);$(feature?'featuredQuote':'shopQuote').textContent='DR. ZED: “'+line.text+'”';if(feature){offset=(offset+1)%featuredPool.length;save();renderFeatured();tick();$('featuredQuote').textContent='NOW FEATURED: '+currentFeatured().name+' • READY TO DISPENSE';if(currentFeatured().id==='etech'){$('featuredQuote').textContent+=' • E-TECH SPECIAL'}}}
+$('openScanner').addEventListener('click',openShop);$('openKeypad').addEventListener('click',openShop);$('openIotd').addEventListener('click',openFeature);$('openFile').addEventListener('click',()=>{open('fileOverlay');speak(chooseVoice('fileOpen'))});
+function closeWithFarewell(){const line=chooseVoice('depart');close();speak(line)}
+$('shopClose').addEventListener('click',closeWithFarewell);$('iotdClose').addEventListener('click',closeWithFarewell);$('fileClose').addEventListener('click',closeWithFarewell);
+['shopOverlay','iotdOverlay','fileOverlay'].forEach(id=>$(id).addEventListener('click',e=>{if(e.target===$(id))close()}));
+$('buyStandard').addEventListener('click',()=>purchase(false));$('buyFeatured').addEventListener('click',()=>purchase(true));
+$('soundToggle').addEventListener('click',()=>{muted=!muted;if(muted&&voicePlayer)voicePlayer.pause();$('soundToggle').textContent=muted?'🔇 ZED\'S VOICE: OFF':'🔊 ZED\'S VOICE: ON';$('soundToggle').setAttribute('aria-pressed',String(!muted))});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&activeOverlay)close();if(e.key==='Tab'&&activeOverlay){const buttons=[...$(activeOverlay).querySelectorAll('button:not([disabled])')],first=buttons[0],last=buttons[buttons.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
+renderItems();renderSelected();renderFeatured();tick();setInterval(tick,1000);
+})();
+</script></body></html>
